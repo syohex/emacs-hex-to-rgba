@@ -1,6 +1,6 @@
 # hex-to-rgba.el
 
-Emacs port of [Hex-to-RGBA](https://github.com/aroscoe/Hex-to-RGBA)
+Emacs port of [Hex-to-RGBA](https://github.com/aroscoe/Hex-to-RGBA) which is Sublime Text plugin.
 
 ## Command
 
