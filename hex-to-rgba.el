@@ -33,7 +33,7 @@
         (error "Not found hash mark of color hex")))
     (let ((re "#\\(?:[0-9a-fA-F]\\{3\\}\\(?:[0-9a-fA-F]\\{3\\}\\)?\\)"))
       (unless (re-search-forward re (line-end-position) t)
-        (error "Not found Color hex"))
+        (error "Not found color hex"))
       (cons (match-beginning 0) (match-end 0)))))
 
 (defsubst hex-to-rgba-convert3 (hex-str)
@@ -43,8 +43,7 @@
            collect (+ (* 16 val) val)))
 
 (defsubst hex-to-rgba-convert6 (hex-str)
-  (cl-loop repeat 3
-           for i = 0 then (+ i 2)
+  (cl-loop for i from 0 below 6 by (+ i 2)
            for first = (string-to-number (char-to-string (aref hex-str i)) 16)
            for second = (string-to-number (char-to-string (aref hex-str (+ i 1))) 16)
            collect (+ (* 16 first) second)))
@@ -55,22 +54,23 @@
     (hex-to-rgba-convert6 hex-str)))
 
 (defun hex-to-rgba--format (rgba)
-  (format "rgba(%d,%d,%d,%d)"
+  (format "rgba(%d,%d,%d,1)"
           (cl-first rgba)
           (cl-second rgba)
-          (cl-third rgba)
-          1))
+          (cl-third rgba)))
+
+(defun hex-to-rgba--region (start end)
+  (let* ((hex-str (buffer-substring-no-properties (1+ start) end))
+         (rgba (hex-to-rgba--convert hex-str)))
+    (goto-char start)
+    (delete-region start end)
+    (insert (hex-to-rgba--format rgba))))
 
 ;;;###autoload
 (defun hex-to-rgba ()
   (interactive)
-  (let* ((range (hex-to-rgba--range))
-         (hex-str (buffer-substring-no-properties (1+ (car range)) (cdr range)))
-         (rgba (hex-to-rgba--convert hex-str)))
-    (save-excursion
-      (goto-char (car range))
-      (delete-region (car range) (cdr range))
-      (insert (hex-to-rgba--format rgba)))))
+  (let ((range (hex-to-rgba--range)))
+    (hex-to-rgba--region (car range) (cdr range))))
 
 (provide 'hex-to-rgba)
 
